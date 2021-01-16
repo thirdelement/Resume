@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Exo:wght@100;200;300;400;500;600;700&family=Roboto:wght@100;200;300;400;500;600;700&display=swap"); 
 
+/*----------------------------------------------------------------Map */
+div#map {min-height: 360px;}
+
+
 /*----------------------------------------------------------------Colours */
 .bg-color-name-title{
     background-color: #676767;
@@ -35,6 +39,14 @@
 
 .ui-menu-color-download{
     background-color: #525252;
+}
+
+.ui-menu-color-meetups{
+    background-color: #258d25;
+}
+
+.ui-menu-color-merch{
+    background-color: rgb(206, 206, 133);
 }
 /* *----------------------------------------------------------------Special paddings/margins/text */
 
@@ -398,5 +410,9 @@ button[type="submit"]{
         min-height: 240px;
         margin: 0 auto;
         max-width: 50%;
+    }
+
+    .name{
+        font-size: 5rem;
     }
 }
