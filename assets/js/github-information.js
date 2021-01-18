@@ -22,8 +22,35 @@ function userInformationHTML(user)  { //takes one parameter of user which is an 
                             //of number of followers then a blank link and then count of public Repos are displayed.
 }
 
+function repoInformationHTML(repos) {
+    if (repos.length == 0) {                //GitHub returns object as an array so we can use standary array method which is length
+                                            //to see if it's equal to 0.  If it is then our array is empty and no respositories for
+                                            //that user.
+        return `<div class = "clearfix repo-list">No repos!</div>`;
+    }
+
+    var listItemsHTML = repos.map(function(repo) {  //the map() method works like a forEach but returns an array with the results of this function
+        return `<li>                                
+        <a href="${repo.html_url}" target="_blank">${repo.name}</a> 
+        </li>`;                                     //the contents of the array we want to return are an <li>.  Inside the li, we 
+                                                    //have an anchor tag.  The href for the anchor tag is ${repo.html_url}.
+    });
+
+    return `<div class="clearfix repo-list">
+        <p>
+            <strong>Repo List:</strong>
+        </p>
+        <ul>
+            ${listItemsHTML.join("\n")}
+        </ul>
+        </div>`;                            //The Ul is the parent for all the list items we created.  As map() returns an array
+                                            //we're going to use join() on that array and join everything with a new line.
+                                            //This stops us from having to iterate throug the new array again.
+}
 
 function fetchGitHubInformation(event) {
+    $("#gh-user-data").html("");  //clears the gh-user-data div when there's an empty text box
+    $("#gh-repo-data").html("");    //clears the gh-repo-data div when there's an empty text box
   var username = $("#gh-username").val(); //create a variable to hold the username that is typed
   //use jQuery to select the gh-username ID and the value in that text field
   if (!username) {
@@ -39,13 +66,18 @@ function fetchGitHubInformation(event) {
         </div>`);
 
   $.when(
-    $.getJSON(`https://api.github.com/users/${username}`)
+    $.getJSON(`https://api.github.com/users/${username}`), 
+    $.getJSON(`https://api.github.com/users/${username}/repos`) //list the repos for that individual user
     ).then (
-    function (response) {
+    function (firstResponse, secondResponse) {  //We need two variables as two JSON calls
       //when method takes a function as its first argument.
-      var userData = response;
+      //when we do two calls the when () method packs a response into arrays.  Each one is the first element of the array.
+      //so we put indexes in there for these responses & after that we target ("#gh-repo-data").html()
+      var userData = firstResponse[0];          //create variable for user data
+      var repoData = secondResponse[0];     //create variable for repo data
       $("#gh-user-data").html(userInformationHTML(userData)); //set jQuery selectors to select the gh-user-data div and set the HTML to
       //the results of another function called userinformationHTML()
+      $("#gh-repo-data").html(repoInformationHTML(repoData));
     },
     function (errorResponse) {
       //if 404 error then we're going to set gh-user-data div to HTML error message.
@@ -60,3 +92,6 @@ function fetchGitHubInformation(event) {
       }
     });
 }
+
+$(document).ready(fetchGitHubInformation);  //automatically display Octocat's profile when the page is loaded
+                                            //executes the fetchGitHubInformation function when the DOM is fully loaded.
