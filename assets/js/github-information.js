@@ -83,12 +83,19 @@ function fetchGitHubInformation(event) {
       //if 404 error then we're going to set gh-user-data div to HTML error message.
       if (errorResponse.status === 404) {
         $("#gh-user-data").html(`<h2>No info found for user ${username}</h2>`);
-      } else {
+      } else if (errorResponse.status === 403) {        //403 is a forbidden error returned when our access to GitHub API is denied
+                                                        //due to throttling.  So we create a new variable called resetTime and set that
+                                                        //to be the date object.  The data we want to retrieve is stored inside our 
+                                                        //errorResponse in the header specically X-RateLimit-Reset presented as a Unix 
+                                                        //timestamp.  We need to multiply by 1000 and then turn into a date object so it is
+                                                        //readable.  Then we display the resetTime variable to our user.
+        var resetTime = new Date(errorResponse.getResponseHeader('X-RateLimit-Reset')*1000);
+        $("#gh-user-data").html(`<h4>Too many requests, please wait until ${resetTime.toLocaleTimeString()}</h4>`);
+      } else {                                          //The toLocalTimeString picks up location from browser and displays in local time.
         console.log(errorResponse); //if not a 404 error then console.log the entire error
         $("#gh-user-data").html(
           //set gh-user-data to the JSON response back
-          `<h2>Error: ${errorResponse.responseJSON.message}</h2>`
-        );
+          `<h2>Error: ${errorResponse.responseJSON.message}</h2>`);
       }
     });
 }
